@@ -20,25 +20,32 @@ class PlacesListScreen extends StatelessWidget {
         ],
       ),
       body: Center(
-        child: Consumer<GreatPlaces>(
-          child: Center(
-            child: Text('You have not added any places yet!'),
-          ),
-          builder: (ctx, greatPlacesData, child) => greatPlacesData.items.length <= 0
-              ? child
-              : ListView.separated(
-                  separatorBuilder: (ctx, index) => Divider(
-                    color: Colors.black,
-                    indent: 10,
-                    endIndent: 10,
+        child: FutureBuilder(
+          future: Provider.of<GreatPlaces>(context, listen: false).fetchAndSetPlaces(),
+          builder: (ctx, snapshot) => snapshot.connectionState == ConnectionState.waiting
+              ? Center(
+                  child: CircularProgressIndicator(),
+                )
+              : Consumer<GreatPlaces>(
+                  child: Center(
+                    child: Text('You have not added any places yet!'),
                   ),
-                  itemCount: greatPlacesData.items.length,
-                  itemBuilder: (ctx, i) => ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage: FileImage(greatPlacesData.items[i].image),
-                    ),
-                    title: Text(greatPlacesData.items[i].title.toString()),
-                  ),
+                  builder: (ctx, greatPlacesData, child) => greatPlacesData.items.length <= 0
+                      ? child
+                      : ListView.separated(
+                          separatorBuilder: (ctx, index) => Divider(
+                            color: Colors.black,
+                            indent: 10,
+                            endIndent: 10,
+                          ),
+                          itemCount: greatPlacesData.items.length,
+                          itemBuilder: (ctx, i) => ListTile(
+                            leading: CircleAvatar(
+                              backgroundImage: FileImage(greatPlacesData.items[i].image),
+                            ),
+                            title: Text(greatPlacesData.items[i].title.toString()),
+                          ),
+                        ),
                 ),
         ),
       ),
