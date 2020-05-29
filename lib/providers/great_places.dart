@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart' as sysPath;
 
 import '../models/place.dart';
 import '../helpers/db_helper.dart';
+import '../helpers/location_helper.dart';
 
 class GreatPlaces with ChangeNotifier {
   List<Place> _items = [];
@@ -14,15 +15,23 @@ class GreatPlaces with ChangeNotifier {
     return [..._items];
   }
 
-  void addPlace(
+  Future<void> addPlace(
     String pickedTitle,
     File pickedImage,
-  ) {
+    PlaceLocation pickedLocation,
+  ) async {
+    final address =
+        await LocationHelper.getPlaceAddress(pickedLocation.latitude, pickedLocation.longitude);
+    final updatedLocation = PlaceLocation(
+      latitude: pickedLocation.latitude,
+      longitude: pickedLocation.longitude,
+      address: address,
+    );
     final newPlace = Place(
       id: DateTime.now().toString(),
       image: pickedImage,
       title: pickedTitle,
-      location: null,
+      location: updatedLocation,
     );
     _items.add(newPlace);
     notifyListeners();
@@ -30,6 +39,9 @@ class GreatPlaces with ChangeNotifier {
       'id': newPlace.id,
       'image': path.basename(newPlace.image.path),
       'title': newPlace.title,
+      'loc_lat': newPlace.location.latitude,
+      'loc_long': newPlace.location.longitude,
+      'address': newPlace.location.address,
     });
   }
 
@@ -41,7 +53,11 @@ class GreatPlaces with ChangeNotifier {
         .map((item) => Place(
               id: item['id'],
               title: item['title'],
-              location: null,
+              location: PlaceLocation(
+                latitude: item['loc_lat'],
+                longitude: item['loc_long'],
+                address: item['address'],
+              ),
               image: File(path.join(directory.path, item['image'])),
             ))
         .toList();

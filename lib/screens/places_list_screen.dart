@@ -44,6 +44,7 @@ class PlacesListScreen extends StatelessWidget {
                               backgroundImage: FileImage(greatPlacesData.items[i].image),
                             ),
                             title: Text(greatPlacesData.items[i].title.toString()),
+                            subtitle: Text(greatPlacesData.items[i].location.address),
                           ),
                         ),
                 ),
